@@ -1,0 +1,21 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+      http:
+
+exporters:
+  logging:
+    loglevel: debug
+  awsxray:
+  otlp:
+    endpoint: ${NEW_RELIC_ENDPOINT}
+    headers: 
+      api-key: ${NEW_RELIC_API_KEY}
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      exporters: [logging, awsxray, otlp]
+
