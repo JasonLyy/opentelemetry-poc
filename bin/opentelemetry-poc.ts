@@ -4,5 +4,7 @@ import { TestServiceOne } from '../lib/test-service-one';
 import { TestServiceTwo } from '../lib/test-service-two';
 
 const app = new cdk.App();
-new TestServiceOne(app, 'TestServiceOneStack');
-new TestServiceTwo(app, 'TestServiceTwoStack');
+const { endpoint } = new TestServiceTwo(app, 'TestServiceTwoStack');
+new TestServiceOne(app, 'TestServiceOneStack', {
+    testServiceTwoEndpoint: endpoint,
+});

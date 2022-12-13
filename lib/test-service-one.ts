@@ -10,8 +10,12 @@ dotenv.config({
   path: path.join(__dirname, "../src/.env"),
 });
 
+
+export type TestServiceOneStackProps = StackProps & {
+  testServiceTwoEndpoint: string;
+}
 export class TestServiceOne extends Stack {
-  constructor(scope: Construct, id: string, props?: StackProps) {
+  constructor(scope: Construct, id: string, props: TestServiceOneStackProps) {
     super(scope, id, props);
 
     const api = new apigateway.RestApi(this, "service-api", {
@@ -30,6 +34,7 @@ export class TestServiceOne extends Stack {
       environment: {
         NEW_RELIC_ENDPOINT: process.env.NEW_RELIC_ENDPOINT ?? "",
         NEW_RELIC_API_KEY: process.env.NEW_RELIC_API_KEY ?? "",
+        TEST_SERVICE_TWO_ENDPOINT: props.testServiceTwoEndpoint,
         AWS_LAMBDA_EXEC_WRAPPER: '/opt/otel-handler',
         OPENTELEMETRY_COLLECTOR_CONFIG_FILE: '/var/task/collector.yaml'
       },
