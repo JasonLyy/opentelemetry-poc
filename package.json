@@ -5,11 +5,12 @@
     "opentelemetry-poc": "bin/opentelemetry-poc.js"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc src/*.ts && cd lambda_node_modules && npm install && cd ../",
+    "postbuild": "cp -R src build && cp -R lambda_node_modules/node_modules build",
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk",
-    "deploy": "cdk deploy --all --require-approval never"
+    "deploy": "npm run build && cdk deploy --all --require-approval never"
   },
   "devDependencies": {
     "@types/jest": "^29.2.3",
@@ -37,6 +38,6 @@
     "aws-sdk": "^2.1271.0",
     "constructs": "^10.0.0",
     "dotenv": "^16.0.3",
-    "node-fetch": "^3.3.0"
+    "node-fetch": "^2.0.0"
   }
 }

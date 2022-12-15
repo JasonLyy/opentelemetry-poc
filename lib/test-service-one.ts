@@ -1,11 +1,10 @@
 import { Duration, Stack, StackProps } from "aws-cdk-lib";
 import * as apigateway from "aws-cdk-lib/aws-apigateway";
 import * as lambda from "aws-cdk-lib/aws-lambda";
-import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { Construct } from "constructs";
 import * as path from "path";
 import * as dotenv from "dotenv";
-import { Tracing } from "aws-cdk-lib/aws-lambda";
+import { Function, Tracing } from "aws-cdk-lib/aws-lambda";
 dotenv.config({
   path: path.join(__dirname, "../src/.env"),
 });
@@ -23,13 +22,14 @@ export class TestServiceOne extends Stack {
      });
     const members = api.root.addResource("members");
 
-    const getMembersHandler = new NodejsFunction(this, "get-members", {
+    const getMembersHandler = new Function(this, "get-members", {
       memorySize: 128,
       timeout: Duration.seconds(8),
       runtime: lambda.Runtime.NODEJS_18_X,
-      handler: "handler",
+      // handler: "handler",
       functionName: "test-service-one-getMembers",
-      entry: path.join(__dirname, "../src/getMembers.ts"),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../build')),
+      handler: 'getMembers.handler',
       tracing: Tracing.ACTIVE,
       environment: {
         NEW_RELIC_ENDPOINT: process.env.NEW_RELIC_ENDPOINT ?? "",
@@ -37,21 +37,6 @@ export class TestServiceOne extends Stack {
         TEST_SERVICE_TWO_ENDPOINT: props.testServiceTwoEndpoint,
         AWS_LAMBDA_EXEC_WRAPPER: '/opt/otel-handler',
         OPENTELEMETRY_COLLECTOR_CONFIG_FILE: '/var/task/collector.yaml'
-      },
-      bundling: {
-        commandHooks: {
-          beforeBundling(inputDir, outputDir) {
-            return [
-              `cp ${inputDir}/src/collector.yaml ${outputDir}`
-            ]
-          },
-          afterBundling(): string[] {
-            return [];
-          },
-          beforeInstall() {
-            return [];
-          },
-        }
       },
       layers: [
         lambda.LayerVersion.fromLayerVersionArn(
