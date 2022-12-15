@@ -15,7 +15,10 @@ exporters:
 
 service:
   pipelines:
+    metrics:
+      receivers: [otlp]
+      exporters: [otlp]
     traces:
       receivers: [otlp]
-      exporters: [logging, awsxray, otlp]
+      exporters: [awsxray, otlp]
 
